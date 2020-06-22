@@ -117,15 +117,13 @@ informando tal ação.
 
 - 2ª Passo: Implementação do envio do email em 'LoginListener.php'
  
-* Envia um email para quem logou passando o próprio usuário, todavia poderia passar como argumento do método 'to()': user, user[] ou email do usuário.
-* 'Login' é o nome do evento gerado pelo Laravel
-* 'NovoAcesso' é a classe de email criada especificamente para a ação de login
-
-public function handle(Login $event)  
-{
-  ...
+* //Envia um email para quem logou passando o próprio usuário, todavia poderia passar como argumento do método 'to()': user, user[] ou email do usuário.
+* //'Login' é o nome do evento gerado pelo Laravel
+* //'NovoAcesso' é a classe de email criada especificamente para a ação de login
+public function handle(Login $event) {
+  
   Mail::to($event->user)->send(new NovoAcesso($event->user));  
-  ...
+  
 }
 
 
