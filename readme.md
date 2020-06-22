@@ -4,7 +4,7 @@ Neste projeto foram implementadas as funcionalidades de:
 - Criação de Eventos (events) e Ouvintes (Listeners)
 - Configuração, criação e envio de e-mail
 
-### Enventos
+### Eventos
 
 Os eventos do Laravel fornecem uma implementação simples do padrão 'observer',
 permitindo que você cadastre e ouça vários eventos que ocorrem no seu aplicativo.
@@ -66,15 +66,15 @@ e armazena em log o nome do usuário que logou.
 evento 'Login.php' em 'providers\EventServiceProvider.php'.
 - 3º - Neste caso, o acionamento do evento ocorre automaticamente quando o usuário loga no sistema, sem a necessidade de instanciar o evento 'Login.php' em algum controlador.
 
-### E-mail
+### Envio de e-mail
 
 #### Configuração do arquivo '.env' para envio de email na PR:
 
-MAIL_HOST=10.1.2.150    
-MAIL_PORT=25
-MAIL_ENCRYPTION=null
-MAIL_FROM_ADDRESS=uds@dominio.gov.br  // opcional
-MAIL_FROM_NAME="Laravel - Meu App"    // opcional
+- MAIL_HOST=10.1.2.150    
+- MAIL_PORT=25
+- MAIL_ENCRYPTION=null
+- MAIL_FROM_ADDRESS=uds@dominio.gov.br  // opcional
+- MAIL_FROM_NAME="Laravel - Meu App"    // opcional
 
 Obs.1: Quando a aplicação estiver em produção, as configurações devem ser feitas diretamente no arquivo 'config\mail.php'.
 Obs.2: Essa configuração serve para enviar e-mails tanto para o dominínio interno da PR quanto
@@ -117,15 +117,15 @@ informando tal ação.
 
 - 2ª Passo: Implementação do envio do email em 'LoginListener.php'
  
-  // Envia um email para quem logou passando o próprio usuário, todavia 
-  // poderia passar como argumento do método 'to()': user, user[] ou email do usuário.
-  // NovoAcesso é a classe de email criada especificamente para a ação de login
+* Envia um email para quem logou passando o próprio usuário, todavia poderia passar como argumento do método 'to()': user, user[] ou email do usuário.
+* 'Login' é o nome do evento gerado pelo Laravel
+* 'NovoAcesso' é a classe de email criada especificamente para a ação de login
 
-  public function handle(Login $event)  // 'Login' é o nome do evento gerado pelo Laravel
-  {
-    ...
-    Mail::to($event->user)->send(new NovoAcesso($event->user));  
-    ...
-  }
+public function handle(Login $event)  
+{
+  ...
+  Mail::to($event->user)->send(new NovoAcesso($event->user));  
+  ...
+}
 
 
