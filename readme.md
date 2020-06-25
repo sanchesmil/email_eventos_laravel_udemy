@@ -1,8 +1,9 @@
-## Criação de Eventos e envio de E-mail
+## Criação de Eventos, E-mails e Filas (Queue + Redis)
 
 Neste projeto foram implementadas as funcionalidades de:
 - Criação de Eventos (events) e Ouvintes (Listeners)
 - Configuração, criação e envio de e-mail
+- Configuração de Filas (queues) usando o Redis
 
 ### Eventos
 
@@ -127,4 +128,98 @@ public function handle(Login $event) {
   
 }
 
+### Redis (Trabalhando com fila de emails)
 
+O Redis consiste em um banco de dados que armazena tuplas (chave e valor) em memória. 
+Por valor entende-se um simples dado primitivo, como número ou string, mas que também 
+pode ser um array complexo de objetos e outros arrays internos.
+
+Essa arquitetura do redis permite que ele seja utilizado como uma camada de cache para 
+aplicações que recebem requisições para retornar frequentemente alguns dados. 
+Estes dados, em vez de serem buscados em arquivos ou remotamente, são prontamente 
+retornados ao cliente requisitante em um tempo muito reduzido.
+
+#### Instalação do Redis no windows
+
+2 FORMAS: 
+
+1ª - Baixar o instalador do Redis para windows:
+
+  https://github.com/MicrosoftArchive/redis/releases
+
+  Foi instalada a versão 3.2 do Redis na máquina.
+
+  * Obs.: Após instalar o REDIS é necessário ativar o serviço na guia 'Serviços' do windows.
+
+2ª - Habilitando o WSL (Subsistema Windows para Linux).
+  
+  1º Habilitar o WSL na máquina local em 'Recursos do Windows'
+  
+  2º Baixar e instalar o SO Ubuntu pela 'Microsoft Store'.
+
+  3º Instalação do REDIS: Após instalar o Ubuntu foi instalado o REDIS.
+
+  * Iniciar o serviço:  Após instalar o REDIS no Ubuntu usando o WSL é necessário iniciar o serviço:
+  
+        cmd> wsl (acessar no modo Unix do Ubuntu)
+
+        cmd> redis-serve 
+
+  * Parar o serviço:
+
+        cdm> wsl (em outro terminal)
+
+        cdm> redis-cli
+
+        cdm> shutdown nosave
+
+  * Obs.: As duas formas de instalação e uso do REDIS funcionaram perfeitamente.
+
+#### Instalação do Pacote 'predis' no laravel
+
+Antes de usar o Redis com o Laravel, você precisará instalar o pacote via Composer:
+
+  composer require predis/predis
+
+### Envio de E-mails com Filas (queues)
+
+Um ponto que deve ser avaliado no momento de enviar e-mails é a questão do tempo,
+o envio de e-mails é uma tarefa pesada, que tem um tempo de resposta razoavelmente grande, 
+por esse motivo usar Queues (filas) é uma boa alternativa.
+
+A ideia para uso de filas é armazenar 'eventos' que demoram certa quantidade de tempo para ser 
+concretizada como, por exemplo, gerar um relatório, fazer upload de arquivo, consultar um servidor
+remoto ou enviar emails para vários destinatários.
+
+#### Filas (queues) de emails:
+
+Podemos definir que o e-mail será enviado e processado pelo sistema de Queues (filas) do Laravel, 
+basta no momento de fazer o envio trocar o método send() por queue(), veja:
+
+public function handle(Login $event) { 
+  Mail::to($event->user)->queue(new NovoAcesso($event->user));   
+}
+
+#### Postergando o envio de e-mails (minutos,horas e dias):
+
+Caso queira por exemplo enviar e-mails só depois de X minutos/horas/dias pode fazer isso 
+usando o método later() e passar o tempo after (depois) que é para disparar o e-mail, veja:
+
+  $tempo = now()->addMinutes(10);
+  Mail::to($to)->later($tempo, new SendMailUser());
+
+Nesse exemplo só vai disparar o e-mail (processar a fila) após 10 minutos.
+
+#### Ativando o serviço de Fila no laravel
+
+A ideia é executar o serviço de filas em 'paralelo' à aplicação principal,
+não impactando no seu desempenho.
+
+Comando:  php artisan queue:work 
+
+### Laravel Horizon
+
+O Horizon fornece um belo painel e uma configuração orientada por código para suas filas Redis com Laravel. O Horizon permite monitorar facilmente as principais métricas do seu sistema de filas, como taxa de transferência, tempo de execução e falhas de tarefas.
+
+Obs.: O Horizon não funciona no Windows. Ele utiliza a extensão pcntl que não está 
+presente nas suas dlls e que não é possível instalar.

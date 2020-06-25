@@ -32,9 +32,15 @@ class LoginListener
         info('Logou!');
         info($event->user->email);  // Mostra o email de quem logou
 
+        $tempo = now()->addMinutes(1);  // Define um momento futuro para o envio de email postergado
+
         // Envia um email para quem logou.  Neste caso, passa o próprio nome do usuário
         // Poderia passar como argumento do 'to': user, user[], email
         Mail::to($event->user)->
-              send(new NovoAcesso($event->user));  // NovoAcesso é a classe de email criada por mim 
-    }
+              //send(new NovoAcesso($event->user));  // send = envia o email imediatamente 
+             
+              //queue(new NovoAcesso($event->user));  // queue = cria uma fila de emails e os envia 
+
+              later($tempo, new NovoAcesso($event->user)); // later = // posterga o envio de email por X minutos/horas/dias
+        }
 }
